@@ -16,8 +16,7 @@ if (!fs.existsSync(hlsOutputPath))
 
 const active = new Map();
 
-// Debug flag: true => single-bitrate SIMPLE_HLS (easier برای دیباگ)
-// بعد از موفقیت، اینو false کن تا multi-bitrate تولید بشه.
+
 const SIMPLE_HLS = true;
 
 const config = {
@@ -212,7 +211,6 @@ export default function rtmpServer() {
 
       // helper to resolve session and spawn when ready
       const tryResolveAndSpawn = (attempt = 0) => {
-        // stop after attempts
         const MAX_ATTEMPTS = 5;
         const RETRY_MS = 400;
 
@@ -229,11 +227,9 @@ export default function rtmpServer() {
           }
         }
 
-        // prefer StreamPath param when present, otherwise session.streamPath
         const streamPath = StreamPath || session.streamPath;
         const streamKey = streamPath?.split?.("/")?.[2];
 
-        // If session isn't marked publisher yet, wait a bit (it can flip to true)
         if (!session.isPublisher && !streamKey) {
           if (attempt < MAX_ATTEMPTS) {
             console.log(
@@ -248,7 +244,6 @@ export default function rtmpServer() {
           }
         }
 
-        // if we have a streamKey -> spawn ffmpeg (even if session.isPublisher is false but streamKey present)
         if (streamKey) {
           spawnFFmpegFor(streamKey);
         } else {
@@ -258,7 +253,6 @@ export default function rtmpServer() {
         }
       };
 
-      // start attempts immediately
       tryResolveAndSpawn(0);
     } catch (err) {
       console.error("postPublish handler error:", err);
